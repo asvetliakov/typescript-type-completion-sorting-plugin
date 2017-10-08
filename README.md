@@ -43,12 +43,11 @@ When doing completion from TS service, slightly reorder available completions to
 
 Install extension ```typescript-sort-completions```
 
-
 ### Non VS code
 
 ```npm install typescript-type-completion-sorting-plugin --save-dev```
 
-Add to tsconfig.json:
+**In either case add to your tsconfig.json**:
 
 ```json
     "plugins": [{
