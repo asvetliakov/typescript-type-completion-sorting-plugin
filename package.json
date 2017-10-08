@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "del-cli '*.js' '*.map' '*.d.ts'",
     "build": "tsc",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublish": "npm run clean && npm run build"
   },
   "author": "",
   "license": "MIT",
