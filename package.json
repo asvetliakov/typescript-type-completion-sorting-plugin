@@ -1,6 +1,6 @@
 {
   "name": "typescript-type-completion-sorting-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Push inherited properties from base types to bottom for TS completion",
   "main": "./index",
   "scripts": {
@@ -8,7 +8,14 @@
     "build": "tsc",
     "prepublish": "npm run clean && npm run build"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asvetliakov/typescript-sort-completions-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/asvetliakov/typescript-sort-completions-vscode/issues"
+  },
+  "author": "Alexey Svetliakov <devpieron@gmail.com>",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
