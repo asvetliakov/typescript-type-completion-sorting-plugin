@@ -4,13 +4,22 @@ import * as ts_module from "typescript/lib/tsserverlibrary";
 function init(modules: { typescript: typeof ts_module }) {
     const ts = modules.typescript;
 
-    function findNode(sourceFile: ts.SourceFile, position: number): ts.Node | undefined {
-        function find(node: ts.Node): ts.Node | undefined {
-            if (position >= node.getStart() && position <= node.getEnd()) {
-                return ts.forEachChild(node, find) || node;
+    /**
+     * Find latest closest node of given types for given position
+     */
+    function findNodeWithType(sourceFile: ts.SourceFile, position: number, type: ts.SyntaxKind[]): ts.Node | undefined {
+        let foundNode: ts.Node = sourceFile;
+        function find(node: ts.Node): void {
+            // Not checking with end boundaries because expression may be incomplete/incorrect and will have node.getEnd() - 1 position
+            if (position >= node.getStart()) {
+                if (type.indexOf(node.kind) !== -1 && node.getStart() >= foundNode.getStart()) {
+                    foundNode = node;
+                }
+                ts.forEachChild(node, find);
             }
         }
-        return find(sourceFile);
+        find(sourceFile);
+        return type.indexOf(foundNode.kind) !== -1 ? foundNode : undefined;
     }
 
     function create(info: ts.server.PluginCreateInfo) {
@@ -26,14 +35,15 @@ function init(modules: { typescript: typeof ts_module }) {
         }
 
         function getOwnMembersFromContextualType(node: ts.Node): string[] | undefined {
-            if (!node || !node.parent) {
+            if (!node) {
                 return;
             }
+
             let type: ts.Type | undefined;
-            if (node.kind === ts.SyntaxKind.JsxOpeningElement || node.kind === ts.SyntaxKind.JsxSelfClosingElement) {
-                type = checker.getAllAttributesTypeFromJsxOpeningLikeElement(node as ts.JsxOpeningLikeElement);
-            } else if (node.parent.kind === ts.SyntaxKind.PropertyAccessExpression) {
-                const contextualNode = (node.parent as ts.PropertyAccessExpression).expression;
+            if (ts.isJsxOpeningLikeElement(node)) {
+                type = checker.getAllAttributesTypeFromJsxOpeningLikeElement(node);
+            } else if (ts.isPropertyAccessExpression(node)) {
+                const contextualNode = node.expression;
                 type = checker.getTypeAtLocation(contextualNode);
             }
             if (!type) {
@@ -62,11 +72,11 @@ function init(modules: { typescript: typeof ts_module }) {
 
         proxy.getCompletionsAtPosition = (fileName, position) => {
             const prior = info.languageService.getCompletionsAtPosition(fileName, position);
-            if (!prior.isMemberCompletion) {
+            if (!prior.isMemberCompletion || prior.entries.length === 0) {
                 return prior;
             }
             const sourceFile = info.languageService.getProgram().getSourceFile(fileName);
-            const node = findNode(sourceFile, position);
+            const node = findNodeWithType(sourceFile, position, [ts.SyntaxKind.PropertyAccessExpression, ts.SyntaxKind.JsxOpeningElement, ts.SyntaxKind.JsxSelfClosingElement]);
             if (!node) {
                 return prior;
             }

@@ -1,6 +1,6 @@
 {
   "name": "typescript-type-completion-sorting-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Push inherited properties from base types to bottom for TS completion",
   "main": "./index",
   "scripts": {

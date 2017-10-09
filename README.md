@@ -50,16 +50,3 @@ When doing completion from TS service, slightly reorder available completions to
 ```
 
 ### Knwon issues
-
-Non working with JSX elements without closing tag, i.e:
-```tsx
-return <MyComp /*trigger completion here*/
-```
-Completions won't be broken, but will be reverted to usual, non-filtered completions
-
-*Workaround*
-
-Enclose expression in brackets:
-```tsx
-return (<MyComp /*trigger here*/);
-```
